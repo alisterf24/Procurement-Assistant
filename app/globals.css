@@ -1,0 +1,381 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --background: #f5f6f8;
+  --foreground: #24272c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(215, 25, 32, 0.28);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .field-label {
+    @apply text-xs font-bold uppercase tracking-[0.1em] text-mahindra-charcoal/85;
+  }
+
+  .field-input {
+    @apply mt-2 w-full rounded-md border border-mahindra-line/80 bg-white/[0.94] px-3.5 py-3 text-sm text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.04)] transition duration-200 placeholder:text-zinc-400 hover:border-zinc-300 hover:bg-white focus:border-mahindra-red focus:bg-white focus:shadow-[0_0_0_4px_rgba(215,25,32,0.08),0_12px_28px_rgba(36,39,44,0.06)];
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-mahindra-red px-4 py-2.5 text-sm font-bold text-white shadow-[0_14px_28px_rgba(215,25,32,0.22)] transition duration-200 hover:-translate-y-0.5 hover:bg-mahindra-deep hover:shadow-[0_20px_42px_rgba(215,25,32,0.3)] active:translate-y-0 disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-white/80 bg-white/[0.9] px-4 py-2.5 text-sm font-bold text-mahindra-ink shadow-[0_10px_28px_rgba(36,39,44,0.06)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-mahindra-red hover:bg-white hover:text-mahindra-red hover:shadow-[0_16px_34px_rgba(36,39,44,0.1)] active:translate-y-0 disabled:cursor-not-allowed disabled:text-zinc-400;
+  }
+
+  .metric-tile {
+    @apply rounded-lg border border-white/75 bg-white/[0.9] p-4 shadow-[0_16px_42px_rgba(36,39,44,0.08)] backdrop-blur-2xl transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_54px_rgba(36,39,44,0.12)];
+  }
+
+  .premium-card {
+    @apply rounded-lg border border-white/80 bg-white/[0.9] shadow-[0_20px_60px_rgba(36,39,44,0.1)] backdrop-blur-2xl;
+  }
+
+  .agent-status-badge {
+    @apply inline-flex items-center gap-2 rounded-md border border-red-100 bg-white/90 px-3 py-2 text-sm font-bold text-mahindra-red shadow-[0_14px_38px_rgba(215,25,32,0.12)] backdrop-blur-xl;
+  }
+}
+
+@layer utilities {
+  .branded-background {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(246, 247, 249, 0.97) 43%, rgba(231, 235, 241, 0.92) 100%),
+      #f5f6f8;
+  }
+
+  .branded-background::after {
+    content: "";
+    position: fixed;
+    inset: auto 6% 0 6%;
+    z-index: 0;
+    height: 28rem;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
+    transform: skewY(-8deg);
+    filter: blur(24px);
+    opacity: 0.62;
+  }
+
+  .branded-background::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 8% 12%, rgba(215, 25, 32, 0.12), transparent 28rem),
+      radial-gradient(circle at 92% 8%, rgba(215, 25, 32, 0.08), transparent 24rem),
+      radial-gradient(circle at 78% 92%, rgba(36, 39, 44, 0.1), transparent 26rem);
+    animation: premium-glow-drift 24s ease-in-out infinite alternate;
+  }
+
+  .branded-background--hero::before {
+    background:
+      radial-gradient(circle at 7% 16%, rgba(215, 25, 32, 0.2), transparent 30rem),
+      radial-gradient(circle at 88% 18%, rgba(215, 25, 32, 0.14), transparent 28rem),
+      radial-gradient(circle at 76% 84%, rgba(36, 39, 44, 0.12), transparent 27rem);
+  }
+
+  .brand-bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .brand-bg-grid {
+    opacity: 0.46;
+    background-image:
+      linear-gradient(rgba(36, 39, 44, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(36, 39, 44, 0.045) 1px, transparent 1px),
+      radial-gradient(circle, rgba(215, 25, 32, 0.13) 1px, transparent 1.6px);
+    background-size: 64px 64px, 64px 64px, 22px 22px;
+    background-position: -1px -1px, -1px -1px, 8px 10px;
+    mask-image: linear-gradient(105deg, black 0%, rgba(0, 0, 0, 0.72) 42%, transparent 82%);
+    animation: premium-grid-shift 34s linear infinite;
+  }
+
+  .brand-bg-diagonals {
+    opacity: 0.72;
+    background:
+      linear-gradient(116deg, transparent 0 16%, rgba(255, 255, 255, 0.62) 16% 22%, transparent 22% 100%),
+      linear-gradient(116deg, transparent 0 57%, rgba(215, 25, 32, 0.075) 57% 61%, transparent 61% 100%),
+      linear-gradient(116deg, transparent 0 73%, rgba(36, 39, 44, 0.055) 73% 78%, transparent 78% 100%);
+    animation: premium-diagonal-drift 28s ease-in-out infinite alternate;
+  }
+
+  .brand-bg-accents {
+    opacity: 0.78;
+    background:
+      repeating-linear-gradient(118deg, transparent 0 18px, rgba(36, 39, 44, 0.025) 18px 19px, transparent 19px 54px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.36), transparent 38%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    animation: premium-lines-slide 38s linear infinite;
+  }
+
+  .brand-bg-ribbons span {
+    position: absolute;
+    display: block;
+    width: 16rem;
+    height: 78rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(215, 25, 32, 0.12), rgba(255, 255, 255, 0.04), rgba(36, 39, 44, 0.06));
+    filter: blur(0.2px);
+    transform: rotate(26deg);
+    animation: premium-ribbon-float 22s ease-in-out infinite alternate;
+  }
+
+  .brand-bg-ribbons span:nth-child(1) {
+    left: 2%;
+    top: -18rem;
+  }
+
+  .brand-bg-ribbons span:nth-child(2) {
+    right: 11%;
+    top: -14rem;
+    width: 10rem;
+    opacity: 0.72;
+    animation-delay: -8s;
+  }
+
+  .brand-bg-ribbons span:nth-child(3) {
+    right: -4%;
+    top: 5rem;
+    width: 20rem;
+    opacity: 0.42;
+    animation-delay: -14s;
+  }
+
+  .brand-bg-glass-panels span {
+    position: absolute;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.64);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08));
+    box-shadow: 0 28px 90px rgba(36, 39, 44, 0.07);
+    backdrop-filter: blur(16px);
+    animation: premium-panel-float 20s ease-in-out infinite alternate;
+  }
+
+  .brand-bg-glass-panels span:nth-child(1) {
+    left: 5%;
+    bottom: 12%;
+    width: 16rem;
+    height: 9rem;
+  }
+
+  .brand-bg-glass-panels span:nth-child(2) {
+    right: 8%;
+    top: 19%;
+    width: 18rem;
+    height: 11rem;
+    animation-delay: -9s;
+  }
+
+  .brand-bg-motifs {
+    opacity: 0.86;
+    mix-blend-mode: multiply;
+  }
+
+  .motif {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+    animation: premium-motif-float 18s ease-in-out infinite alternate;
+  }
+
+  .agent-status-badge svg {
+    animation: premium-badge-pulse 2.8s ease-in-out infinite;
+  }
+
+  .motif path,
+  .motif rect,
+  .motif circle {
+    stroke: url("#motifInk");
+  }
+
+  .motif-network path,
+  .motif-network circle,
+  .motif-flow path {
+    stroke: url("#motifRed");
+  }
+
+  .motif-network {
+    animation-delay: -6s;
+  }
+
+  .motif-document {
+    animation-delay: -11s;
+  }
+
+  .motif-flow {
+    animation-delay: -15s;
+  }
+
+  .branded-background--workspace .brand-bg-grid {
+    opacity: 0.34;
+    mask-image: linear-gradient(110deg, black 0%, rgba(0, 0, 0, 0.56) 38%, transparent 80%);
+  }
+
+  .branded-background--workspace .brand-bg-diagonals {
+    opacity: 0.5;
+  }
+
+  .branded-background--workspace .brand-bg-accents {
+    opacity: 0.48;
+  }
+
+  .branded-background--workspace .brand-bg-ribbons span {
+    opacity: 0.54;
+  }
+
+  .branded-background--workspace .brand-bg-glass-panels {
+    opacity: 0.54;
+  }
+
+  .branded-background--workspace .brand-bg-motifs {
+    opacity: 0.46;
+  }
+
+  @keyframes premium-glow-drift {
+    from {
+      transform: translate3d(-1.5rem, -0.8rem, 0) scale(1);
+    }
+    to {
+      transform: translate3d(1.5rem, 1rem, 0) scale(1.035);
+    }
+  }
+
+  @keyframes premium-grid-shift {
+    from {
+      background-position: -1px -1px, -1px -1px, 8px 10px;
+    }
+    to {
+      background-position: 63px 63px, 63px 63px, 30px 32px;
+    }
+  }
+
+  @keyframes premium-diagonal-drift {
+    from {
+      transform: translate3d(-1rem, 0, 0);
+    }
+    to {
+      transform: translate3d(1.4rem, 0.6rem, 0);
+    }
+  }
+
+  @keyframes premium-lines-slide {
+    from {
+      background-position: 0 0, 0 0;
+    }
+    to {
+      background-position: 160px 0, 0 0;
+    }
+  }
+
+  @keyframes premium-ribbon-float {
+    from {
+      transform: translate3d(0, 0, 0) rotate(26deg);
+    }
+    to {
+      transform: translate3d(2rem, 1.5rem, 0) rotate(26deg);
+    }
+  }
+
+  @keyframes premium-panel-float {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(1rem, -1.25rem, 0);
+    }
+  }
+
+  @keyframes premium-motif-float {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(0.8rem, -0.7rem, 0);
+    }
+  }
+
+  @keyframes premium-badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 rgba(215, 25, 32, 0));
+    }
+    50% {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 10px rgba(215, 25, 32, 0.25));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .brand-bg-motifs {
+      opacity: 0.52;
+      transform: scale(1.25);
+      transform-origin: center;
+    }
+
+    .brand-bg-ribbons span {
+      width: 9rem;
+      height: 56rem;
+    }
+
+    .brand-bg-glass-panels {
+      opacity: 0.42;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .branded-background::before,
+    .branded-background::after,
+    .brand-bg-grid,
+    .brand-bg-diagonals,
+    .brand-bg-accents,
+    .brand-bg-ribbons span,
+    .brand-bg-glass-panels span,
+    .motif,
+    .agent-status-badge svg {
+      animation: none !important;
+    }
+  }
+}
