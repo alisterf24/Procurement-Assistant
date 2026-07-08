@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
+  FileText,
   Mail,
   MapPin,
   Send,
   ShieldAlert,
-  Sparkles,
   Users
 } from "lucide-react";
 import { AgentLoadingModal } from "@/components/agent-loading-modal";
@@ -23,7 +23,8 @@ import { useEffect, useState } from "react";
 const selectedSuppliersStorageKey = "mm-selected-laptop-suppliers";
 const sentLogStorageKey = "mm-rfq-sent-log";
 const defaultAiNote =
-  "This RFQ draft was generated based on the procurement requirement and selected supplier capabilities.";
+  "This RFQ draft was generated from the procurement requirement and selected supplier capabilities.";
+const defaultFromEmail = "procurement.team@example.com";
 
 type SentEmailLog = {
   from: string;
@@ -39,7 +40,7 @@ export default function RFQPage() {
   const router = useRouter();
   const { requirement, selectedSupplierIds, rfqDraft, setRfqDraft } = useDemoState();
   const [selectedSuppliers, setSelectedSuppliers] = useState<LaptopSupplier[]>([]);
-  const [fromEmail, setFromEmail] = useState("procurement.manager@mahindra.com");
+  const [fromEmail, setFromEmail] = useState(defaultFromEmail);
   const [drafting, setDrafting] = useState(true);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -53,13 +54,11 @@ export default function RFQPage() {
     recipientEmails.length > 0 ? recipientEmails.join(", ") : "No selected supplier emails found";
 
   useEffect(() => {
-    const storedEmail =
-      localStorage.getItem("mm-sourcing-user") ?? "procurement.manager@mahindra.com";
     const nextSelectedSuppliers = getSelectedSuppliers(selectedSupplierIds);
-    const generatedDraft = generateRFQEmail(requirement, nextSelectedSuppliers, storedEmail);
+    const generatedDraft = generateRFQEmail(requirement, nextSelectedSuppliers, defaultFromEmail);
     const nextDraft = normalizeDraft(rfqDraft ?? generatedDraft);
 
-    setFromEmail(storedEmail);
+    setFromEmail(defaultFromEmail);
     setSelectedSuppliers(nextSelectedSuppliers);
     setSubject(nextDraft.subject);
     setBody(nextDraft.body);
@@ -101,12 +100,12 @@ export default function RFQPage() {
       <AgentLoadingModal
         open={drafting}
         title="Drafting RFQ"
-        detail="AI Agent is drafting the RFQ email..."
+        detail="Preparing RFQ draft..."
       />
       <AgentLoadingModal
         open={sending}
-        title="Sending RFQ emails"
-        detail="Sending RFQ emails to selected suppliers..."
+        title="Recording RFQ send"
+        detail="Saving simulated send summary..."
       />
 
       {success && (
@@ -116,10 +115,10 @@ export default function RFQPage() {
               <CheckCircle2 size={30} />
             </div>
             <h2 className="mt-5 text-xl font-bold text-mahindra-ink">
-              RFQ email sent successfully
+              RFQ send recorded
             </h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600">
-              RFQ email has been sent successfully to the selected suppliers.
+              Sent summary saved locally. No real email was sent.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button className="secondary-button w-full" onClick={() => setSuccess(false)} type="button">
@@ -133,20 +132,20 @@ export default function RFQPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-7xl px-5 py-6">
+      <main className="mx-auto max-w-7xl px-5 py-6 sm:py-8">
         <Stepper current={success || sentLog ? 3 : 2} />
 
         <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="agent-status-badge">
               <Mail size={15} />
-              Simulated RFQ workspace
+              RFQ workspace
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-mahindra-ink md:text-4xl">
+            <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-mahindra-ink md:text-4xl">
               Editable RFQ Email
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600 md:text-base">
-              Review the locally generated RFQ, adjust the commercial language, and simulate sending it to selected suppliers. No real email service is used.
+              Review and edit the RFQ draft before simulated send.
             </p>
           </div>
 
@@ -162,21 +161,21 @@ export default function RFQPage() {
               type="button"
             >
               <Send size={18} />
-              Send RFQ
+              Record RFQ Send
             </button>
           </div>
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[0.68fr_0.32fr]">
-          <section className="premium-card p-5">
+          <section className="premium-card p-5 sm:p-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
                 <p className="field-label">Step 3</p>
                 <h2 className="mt-2 text-2xl font-bold text-mahindra-ink">
-                  Email Draft
+                  RFQ Draft
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
-                  The draft below is generated locally and remains fully editable before simulated send.
+                  Editable before send.
                 </p>
               </div>
               <button
@@ -186,7 +185,7 @@ export default function RFQPage() {
                 type="button"
               >
                 <Send size={18} />
-                Send RFQ
+                Record RFQ Send
               </button>
             </div>
 
@@ -224,8 +223,8 @@ export default function RFQPage() {
 
             <div className="mt-4 rounded-md border border-red-100 bg-red-50/70 p-4">
               <p className="flex items-center gap-2 text-sm font-bold text-mahindra-red">
-                <Sparkles size={16} />
-                AI note
+                <FileText size={16} />
+                Draft note
               </p>
               <p className="mt-2 text-sm leading-6 text-mahindra-ink">{aiNote}</p>
             </div>
@@ -274,7 +273,7 @@ export default function RFQPage() {
             <div className="metric-tile">
               <p className="field-label">Send mode</p>
               <p className="mt-2 text-sm leading-6 text-zinc-600">
-                Simulated only. The button opens a loading state and success popup, then stores the draft locally for the demo session.
+                Simulated only. A sent summary is saved locally.
               </p>
             </div>
 

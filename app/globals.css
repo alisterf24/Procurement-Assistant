@@ -17,7 +17,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Inter, Arial, Helvetica, sans-serif;
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -40,31 +40,31 @@ a:focus-visible {
 
 @layer components {
   .field-label {
-    @apply text-xs font-bold uppercase tracking-[0.1em] text-mahindra-charcoal/85;
+    @apply text-xs font-bold uppercase tracking-[0.08em] text-mahindra-charcoal/85;
   }
 
   .field-input {
-    @apply mt-2 w-full rounded-md border border-mahindra-line/80 bg-white/[0.94] px-3.5 py-3 text-sm text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.04)] transition duration-200 placeholder:text-zinc-400 hover:border-zinc-300 hover:bg-white focus:border-mahindra-red focus:bg-white focus:shadow-[0_0_0_4px_rgba(215,25,32,0.08),0_12px_28px_rgba(36,39,44,0.06)];
+    @apply mt-2 w-full rounded-md border border-mahindra-line/80 bg-white/[0.94] px-3.5 py-2.5 text-sm leading-6 text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.035)] transition duration-200 placeholder:text-zinc-400 hover:border-zinc-300 hover:bg-white focus:border-mahindra-red focus:bg-white focus:shadow-[0_0_0_4px_rgba(215,25,32,0.08),0_12px_28px_rgba(36,39,44,0.05)];
   }
 
   .primary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-mahindra-red px-4 py-2.5 text-sm font-bold text-white shadow-[0_14px_28px_rgba(215,25,32,0.22)] transition duration-200 hover:-translate-y-0.5 hover:bg-mahindra-deep hover:shadow-[0_20px_42px_rgba(215,25,32,0.3)] active:translate-y-0 disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-mahindra-red px-4 py-2.5 text-sm font-bold leading-5 text-white shadow-[0_10px_22px_rgba(215,25,32,0.2)] transition duration-200 hover:bg-mahindra-deep hover:shadow-[0_14px_28px_rgba(215,25,32,0.24)] active:translate-y-px disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none;
   }
 
   .secondary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-white/80 bg-white/[0.9] px-4 py-2.5 text-sm font-bold text-mahindra-ink shadow-[0_10px_28px_rgba(36,39,44,0.06)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-mahindra-red hover:bg-white hover:text-mahindra-red hover:shadow-[0_16px_34px_rgba(36,39,44,0.1)] active:translate-y-0 disabled:cursor-not-allowed disabled:text-zinc-400;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-white/80 bg-white/[0.9] px-4 py-2.5 text-sm font-bold leading-5 text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.055)] backdrop-blur transition duration-200 hover:border-mahindra-red hover:bg-white hover:text-mahindra-red hover:shadow-[0_12px_28px_rgba(36,39,44,0.08)] active:translate-y-px disabled:cursor-not-allowed disabled:text-zinc-400;
   }
 
   .metric-tile {
-    @apply rounded-lg border border-white/75 bg-white/[0.9] p-4 shadow-[0_16px_42px_rgba(36,39,44,0.08)] backdrop-blur-2xl transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_54px_rgba(36,39,44,0.12)];
+    @apply rounded-lg border border-white/75 bg-white/[0.9] p-4 shadow-[0_14px_36px_rgba(36,39,44,0.07)] backdrop-blur-2xl transition duration-200 hover:shadow-[0_18px_44px_rgba(36,39,44,0.095)];
   }
 
   .premium-card {
-    @apply rounded-lg border border-white/80 bg-white/[0.9] shadow-[0_20px_60px_rgba(36,39,44,0.1)] backdrop-blur-2xl;
+    @apply rounded-lg border border-white/80 bg-white/[0.9] shadow-[0_16px_48px_rgba(36,39,44,0.085)] backdrop-blur-2xl;
   }
 
   .agent-status-badge {
-    @apply inline-flex items-center gap-2 rounded-md border border-red-100 bg-white/90 px-3 py-2 text-sm font-bold text-mahindra-red shadow-[0_14px_38px_rgba(215,25,32,0.12)] backdrop-blur-xl;
+    @apply inline-flex items-center gap-2 rounded-md border border-red-100 bg-white/90 px-3 py-1.5 text-sm font-bold text-mahindra-red shadow-[0_10px_28px_rgba(215,25,32,0.1)] backdrop-blur-xl;
   }
 }
 

@@ -1,33 +1,25 @@
-# M&M AI Sourcing Assistant
+# Procurement Assistant
 
-M&M AI Sourcing Assistant is a demo-only laptop procurement sourcing prototype for a procurement manager. It walks through requirement intake, deterministic supplier matching, RFQ draft generation, and simulated RFQ sending.
+Procurement Assistant is a demo-only procurement decision-support prototype. It includes a hardware sourcing flow and a quotation comparison advisory flow.
 
-This is a demo-only prototype. The AI agent is simulated using deterministic rule-based logic and templates. No real supplier emails are sent.
+The prototype uses deterministic local logic, fictional supplier data, browser localStorage, and simulated RFQ sending. No API keys, external services, real authentication, or real email delivery are required.
 
-## Demo Notes
+## Routes
 
-- No OpenAI API is required.
-- No external AI API is used.
-- No API keys or environment variables are required.
-- No real email service is connected.
-- RFQ sending is simulated and stored locally for the demo session.
-- Supplier data is fictional and stored in the project.
-- The UI uses a Mahindra-inspired enterprise theme, but does not use the actual Mahindra logo.
-
-## Sample Login
-
-- Email: `procurement.manager@mahindra.com`
-- Password: any value
+- `/` - Minimal landing page
+- `/requirements` - Hardware procurement requirement form
+- `/recommendations` - Supplier recommendations and selection
+- `/rfq` - Editable RFQ draft and simulated send summary
+- `/advisory` - Quotation upload and comparison
 
 ## Tech Stack
 
 - Next.js App Router
 - TypeScript
-- Tailwind CSS
 - React
-- LocalStorage for demo session state
-- Mock supplier database
-- Deterministic simulated AI procurement agent
+- Tailwind CSS
+- LocalStorage for demo state
+- Deterministic rule-based procurement logic
 
 ## Local Setup
 
@@ -49,30 +41,27 @@ Open:
 http://localhost:3000
 ```
 
-## Build
-
-Create a production build:
+This workspace also includes `pnpm-lock.yaml`, so pnpm-based environments can use:
 
 ```bash
+pnpm install
+pnpm dev
+```
+
+## Checks
+
+```bash
+npm run typecheck
+npm run lint
 npm run build
 ```
 
-Run the production build locally:
-
-```bash
-npm run start
-```
-
-## Vercel Deployment
-
-This project is ready to deploy on Vercel as a public demo website.
+## Deployment
 
 Recommended Vercel settings:
 
 - Framework preset: Next.js
 - Build command: `npm run build`
 - Install command: `npm install`
-- Output directory: use the Next.js default
+- Output directory: Next.js default
 - Environment variables: none required
-
-Because the AI agent, supplier data, authentication, and email sending are simulated locally, no API keys, email credentials, or external services are needed for deployment.

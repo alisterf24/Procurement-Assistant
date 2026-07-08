@@ -5,14 +5,12 @@ import {
   AlertCircle,
   Award,
   BadgeCheck,
-  Bot,
   CheckCircle2,
   Clock,
   Mail,
   MapPin,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Star,
   XCircle
 } from "lucide-react";
@@ -32,6 +30,7 @@ import type { LaptopRequirement } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
 
 const selectedSuppliersStorageKey = "mm-selected-laptop-suppliers";
+const defaultFromEmail = "procurement.team@example.com";
 
 export default function RecommendationsPage() {
   const router = useRouter();
@@ -107,14 +106,12 @@ export default function RecommendationsPage() {
     setPreparingRfq(true);
 
     window.setTimeout(() => {
-      const loggedInUserEmail =
-        localStorage.getItem("mm-sourcing-user") ?? "procurement.manager@mahindra.com";
       setSelectedSupplierIds(selectedIds);
       localStorage.setItem(
         selectedSuppliersStorageKey,
         JSON.stringify(selectedSuppliers)
       );
-      setRfqDraft(generateRFQEmail(resolvedRequirement, selectedSuppliers, loggedInUserEmail));
+      setRfqDraft(generateRFQEmail(resolvedRequirement, selectedSuppliers, defaultFromEmail));
       router.push("/rfq");
     }, 1200);
   }
@@ -124,7 +121,7 @@ export default function RecommendationsPage() {
       <AgentLoadingModal
         open={matching}
         title="Matching suppliers"
-        detail="AI Agent is matching your requirement with supplier capabilities..."
+        detail="Comparing requirement with supplier capabilities..."
       />
       <AgentLoadingModal
         open={preparingRfq}
@@ -132,20 +129,20 @@ export default function RecommendationsPage() {
         detail="Preparing supplier selection for RFQ generation..."
       />
 
-      <main className="mx-auto max-w-7xl px-5 py-6">
+      <main className="mx-auto max-w-7xl px-5 py-6 sm:py-8">
         <Stepper current={1} />
 
         <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="agent-status-badge">
-              <Bot size={15} />
-              Simulated AI supplier matching
+              <BadgeCheck size={15} />
+              Supplier matching
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-mahindra-ink md:text-4xl">
+            <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-mahindra-ink md:text-4xl">
               Supplier Recommendations
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600 md:text-base">
-              Ranked supplier matches are generated from deterministic rules across capability fit, location coverage, delivery timeline, certifications, rating, support, and enterprise experience.
+              Ranked by capability, delivery, compliance, support, and experience.
             </p>
           </div>
           <button className="primary-button" onClick={handleGenerateRFQ} type="button">
@@ -163,12 +160,12 @@ export default function RecommendationsPage() {
 
         {!matching && (
           <div className="mt-6 space-y-6">
-            <section className="premium-card p-5">
+            <section className="premium-card p-5 sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="field-label">Section 1</p>
                   <h2 className="mt-1 text-2xl font-bold text-mahindra-ink">
-                    AI Requirement Summary
+                    Requirement Summary
                   </h2>
                   <p className="mt-2 max-w-4xl text-sm leading-6 text-zinc-600">
                     {analysis.summary}
@@ -286,7 +283,7 @@ function SupplierCard({
 
   return (
     <article
-      className={`group rounded-lg border bg-white/[0.9] p-5 shadow-[0_18px_54px_rgba(36,39,44,0.1)] backdrop-blur-2xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_76px_rgba(36,39,44,0.15)] ${
+      className={`group rounded-lg border bg-white/[0.9] p-5 shadow-[0_16px_48px_rgba(36,39,44,0.085)] backdrop-blur-2xl transition duration-200 hover:shadow-[0_20px_56px_rgba(36,39,44,0.11)] sm:p-6 ${
         selected
           ? "border-mahindra-red ring-2 ring-red-100"
           : topRecommended
@@ -321,7 +318,7 @@ function SupplierCard({
           </div>
         </div>
 
-        <div className="min-w-28 rounded-md bg-gradient-to-br from-mahindra-ink to-zinc-700 px-4 py-3 text-center text-white shadow-[0_14px_34px_rgba(36,39,44,0.18)]">
+        <div className="min-w-28 rounded-md bg-mahindra-ink px-4 py-3 text-center text-white shadow-[0_10px_28px_rgba(36,39,44,0.16)]">
           <p className="text-3xl font-bold leading-none">{recommendation.matchPercentage}%</p>
           <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-white/70">
             Match
@@ -353,8 +350,8 @@ function SupplierCard({
 
       <div className="mt-5 rounded-md border border-red-100 bg-red-50/60 p-4">
         <div className="mb-2 flex items-center gap-2 text-sm font-bold text-mahindra-red">
-          <Sparkles size={16} />
-          AI recommendation reason
+          <BadgeCheck size={16} />
+          Recommendation reason
         </div>
         <p className="text-sm leading-6 text-mahindra-ink">
           {recommendation.recommendationReason}
@@ -464,8 +461,13 @@ function getStoredRequirement(requirement: LaptopRequirement): LaptopRequirement
     return requirement ?? defaultRequirement;
   }
 
-  return {
-    ...defaultRequirement,
-    ...JSON.parse(storedRequirement)
-  };
+  try {
+    return {
+      ...defaultRequirement,
+      ...JSON.parse(storedRequirement)
+    };
+  } catch {
+    window.localStorage.removeItem("mm-laptop-requirement");
+    return requirement ?? defaultRequirement;
+  }
 }

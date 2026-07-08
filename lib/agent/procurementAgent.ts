@@ -60,8 +60,8 @@ export function analyzeRequirement(requirement?: LaptopRequirement): Requirement
   return {
     title: resolvedRequirement.requestTitle,
     summary:
-      `The simulated AI agent has analyzed ${resolvedRequirement.quantity} ${resolvedRequirement.laptopType.toLowerCase()} units for ${resolvedRequirement.department}. ` +
-      `The event targets ${resolvedRequirement.deliveryLocation} delivery within ${resolvedRequirement.maximumDeliveryTimeline}, with an estimated sourcing value of INR ${formatCurrency(estimatedValue)}.`,
+      `${resolvedRequirement.quantity} ${resolvedRequirement.laptopType.toLowerCase()} units for ${resolvedRequirement.department}. ` +
+      `Delivery target: ${resolvedRequirement.deliveryLocation} within ${resolvedRequirement.maximumDeliveryTimeline}. Estimated value: INR ${formatCurrency(estimatedValue)}.`,
     shortSummary: {
       itemRequired: resolvedRequirement.laptopType,
       quantity: resolvedRequirement.quantity,
@@ -130,8 +130,8 @@ export function generateRecommendationReason(
   return [
     `Recommended as a ${fitCategory} match at ${scoreBreakdown.matchPercentage}% because ${supplier.name} ${strengths.join(", ")}.`,
     watchItems.length
-      ? `The simulated AI agent also notes ${watchItems.join(", ")} as follow-up points before final award.`
-      : "The simulated AI agent found no major fit gaps for this requirement."
+      ? `Follow up on ${watchItems.join(", ")} before final award.`
+      : "No major fit gaps were found for this requirement."
   ].join(" ");
 }
 
@@ -198,9 +198,9 @@ Regards,
 Procurement Manager
 From: ${loggedInUserEmail}
 
-M&M AI Sourcing Assistant Demo`,
+Procurement Assistant`,
     aiNote:
-      "This RFQ draft was generated based on the procurement requirement and selected supplier capabilities. " +
+      "This RFQ draft was generated from the procurement requirement and selected supplier capabilities. " +
       `${selectedSupplierCapabilities} No real email has been sent.`
   };
 }

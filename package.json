@@ -1,12 +1,12 @@
 {
-  "name": "mm-ai-sourcing-assistant",
+  "name": "procurement-assistant",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint app components data lib",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

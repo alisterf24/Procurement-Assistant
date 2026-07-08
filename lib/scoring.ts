@@ -66,7 +66,7 @@ export function scoreSuppliers(requirement: LaptopRequirement): SupplierRecommen
 export function generateRFQDraft(
   requirement: LaptopRequirement,
   suppliers: SupplierRecommendation[],
-  fromEmail = "procurement.manager@mahindra.com"
+  fromEmail = "procurement.team@example.com"
 ): RFQDraft {
   const supplierNames = suppliers.map((supplier) => supplier.name).join(", ");
   const dueDate = new Date();
@@ -111,9 +111,9 @@ Kindly submit your response by ${dueDate.toLocaleDateString("en-IN", {
 Regards,
 Procurement Manager
 From: ${fromEmail}
-M&M AI Sourcing Assistant Demo`,
+Procurement Assistant`,
     aiNote:
-      "This RFQ draft was generated based on the procurement requirement and selected supplier capabilities. No real email has been sent."
+      "This RFQ draft was generated from the procurement requirement and selected supplier capabilities. No real email has been sent."
   };
 }
 

@@ -1,0 +1,62 @@
+SecureByte Hardware Services Pvt. Ltd.
+Vendor: SecureByte Hardware Services Pvt. Ltd.
+Supplier: SecureByte Hardware Services Pvt. Ltd.
+Company: SecureByte Hardware Services Pvt. Ltd.
+Address: Level 6, Orion Tech Park, Baner Road, Pune, Maharashtra 411045
+GSTIN: 27AASCS7721F1Z5
+PAN: AASCS7721F
+Email: enterprise.securebyte@examplevendor.com
+Quotation No: SBHS/APEX/IT-HW/2026/072
+Quotation Date: 08-Jul-2026
+Quote Validity: Quote validity: 45 days.
+
+To: Apex Digital Manufacturing Pvt. Ltd. - Procurement Department
+Buyer Address: Plot 18, Industrial Technology Park, Hinjewadi Phase II, Pune, Maharashtra 411057
+Buyer Contact: Mr. Rohan Mehta - Procurement Head
+Buyer Email: procurement@apexdigitalmfg.example.com
+Buyer GSTIN: 27AAXCA1234M1Z8
+
+Subject: Quotation for supply of 100 business laptops against RFQ for laptop procurement
+
+Item 1 Description: Laptop - Dell Latitude 5450 Business Laptop
+Product: Laptop - Dell Latitude 5450 Business Laptop
+Model / Configuration: Intel Core i5, 16 GB RAM, 512 GB SSD, Windows 11 Pro, 14 inch display, TPM 2.0, fingerprint reader
+Quantity: 100 units
+Unit Price: INR 63,200
+Total Amount: INR 63,20,000
+Item 2 Description: Enterprise Deployment Bundle
+Product: Enterprise Deployment Bundle
+Model / Configuration: Laptop bag, USB mouse, asset tagging, BIOS hardening, standard OS image support
+Quantity: 100 units
+Unit Price: INR 2,800
+Total Amount: INR 2,80,000
+
+Subtotal: INR 66,00,000
+GST Included. Prices are inclusive of GST 18% and applicable taxes.
+Freight Included. Delivery to buyer site in Pune is included in the quoted value.
+Installation and standard configuration included. Includes BIOS security configuration and asset tagging.
+Grand Total: INR 66,00,000
+Final landed cost payable: Rs. 66,00,000 inclusive of GST, freight and standard configuration.
+
+Delivery: Delivery in 10 days from purchase order release. Ready stock reserved for 7 working days.
+Warranty: 3 years onsite OEM warranty from date of installation.
+Support: 24x7 enterprise support with next business day onsite response, escalation desk and back-to-back OEM support.
+Payment Terms: Payment terms: Net 30 days from invoice date after delivery and acceptance.
+Validity: Quote validity: 45 days.
+
+Compliance Indicators:
+- GST Registered
+- OEM Authorized Partner for Dell business laptops
+- ISO 9001
+- ISO 27001
+- Energy Star
+- EPEAT
+
+Terms and Conditions:
+- Quoted value is inclusive of GST, freight, standard configuration and asset tagging for the stated delivery location.
+- Delivery timeline is subject to purchase order release within the quotation validity period.
+- Warranty support will be provided through OEM support channel with SecureByte escalation assistance.
+- Payment credit is subject to standard buyer onboarding and purchase order acceptance.
+
+Authorized Signatory
+Authorized Signatory - SecureByte Hardware Services Pvt. Ltd.

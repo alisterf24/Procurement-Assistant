@@ -39,15 +39,18 @@ export function useDemoState() {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored) as DemoState;
-      setState({
-        ...initialState,
-        ...parsed,
-        requirement: {
-          ...defaultRequirement,
-          ...parsed.requirement
-        }
-      });
+      const parsed = parseStoredState(stored);
+
+      if (parsed) {
+        setState({
+          ...initialState,
+          ...parsed,
+          requirement: {
+            ...defaultRequirement,
+            ...parsed.requirement
+          }
+        });
+      }
     }
     setHydrated(true);
   }, []);
@@ -82,4 +85,27 @@ export function useDemoState() {
       clearWorkflowStorage();
     }
   };
+}
+
+function parseStoredState(value: string): DemoState | null {
+  try {
+    const parsed = JSON.parse(value) as Partial<DemoState>;
+
+    return {
+      requirement: {
+        ...defaultRequirement,
+        ...parsed.requirement
+      },
+      recommendations: Array.isArray(parsed.recommendations)
+        ? parsed.recommendations
+        : [],
+      selectedSupplierIds: Array.isArray(parsed.selectedSupplierIds)
+        ? parsed.selectedSupplierIds.filter((supplierId) => typeof supplierId === "string")
+        : [],
+      rfqDraft: parsed.rfqDraft ?? null
+    };
+  } catch {
+    clearWorkflowStorage();
+    return null;
+  }
 }

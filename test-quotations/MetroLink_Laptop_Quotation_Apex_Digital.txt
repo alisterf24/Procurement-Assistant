@@ -1,0 +1,60 @@
+MetroLink IT Vendors Pvt. Ltd.
+Vendor: MetroLink IT Vendors Pvt. Ltd.
+Supplier: MetroLink IT Vendors Pvt. Ltd.
+Company: MetroLink IT Vendors Pvt. Ltd.
+Address: 402, Zenith Business Centre, Andheri East, Mumbai, Maharashtra 400093
+GSTIN: 27AABCM8491K1ZP
+PAN: AABCM8491K
+Email: sales.metrolink@examplevendor.com
+Quotation No: MLIT/QTN/2026-27/184
+Quotation Date: 08-Jul-2026
+Quote Validity: Quote validity: 30 days.
+
+To: Apex Digital Manufacturing Pvt. Ltd. - Procurement Department
+Buyer Address: Plot 18, Industrial Technology Park, Hinjewadi Phase II, Pune, Maharashtra 411057
+Buyer Contact: Mr. Rohan Mehta - Procurement Head
+Buyer Email: procurement@apexdigitalmfg.example.com
+Buyer GSTIN: 27AAXCA1234M1Z8
+
+Subject: Quotation for supply of 100 business laptops against RFQ for laptop procurement
+
+Item 1 Description: Laptop - Lenovo ThinkPad E14 Gen 6
+Product: Laptop - Lenovo ThinkPad E14 Gen 6
+Model / Configuration: Intel Core i5, 16 GB RAM, 512 GB SSD, Windows 11 Pro, 14 inch display, TPM security
+Quantity: 100 units
+Unit Price: INR 55,500
+Total Amount: INR 55,50,000
+Item 2 Description: Laptop Bag and Basic USB Mouse
+Product: Laptop Bag and Basic USB Mouse
+Model / Configuration: Standard accessories bundled with each laptop
+Quantity: 100 units
+Unit Price: INR 1,250
+Total Amount: INR 1,25,000
+
+Subtotal: INR 56,75,000
+GST 18% Extra. Taxes are exclusive of the quoted subtotal and will be charged additionally on invoice.
+GST Amount 18% Extra: INR 10,21,500
+Freight Extra. Estimated logistics charges: Rs. 45,000 for Pune delivery.
+Basic configuration included. Onsite imaging/deployment service excluded and chargeable separately.
+Grand Total: INR 56,75,000
+Indicative landed cost after GST and estimated freight: Rs. 67,41,500.
+
+Delivery: Delivery in 21 days from receipt of purchase order and advance payment.
+Warranty: 1 year OEM warranty from date of delivery.
+Support: Business hours support, 9:30 AM to 6:30 PM, Monday to Friday. Next business day response on best-effort basis.
+Payment Terms: Payment terms: 30% advance along with purchase order, 70% before dispatch.
+Validity: Quote validity: 30 days.
+
+Compliance Indicators:
+- GST Registered
+- OEM Authorized Partner for Lenovo business notebooks
+- MSME Registered
+
+Terms and Conditions:
+- Prices are exclusive of GST, freight, octroi, insurance and any statutory charges unless specifically stated.
+- Delivery schedule is subject to stock availability at the time of purchase order confirmation.
+- Freight and transit insurance will be billed at actuals unless mutually agreed in writing.
+- Order cancellation after PO acceptance may attract restocking charges.
+
+Authorized Signatory
+Authorized Signatory - MetroLink IT Vendors Pvt. Ltd.
