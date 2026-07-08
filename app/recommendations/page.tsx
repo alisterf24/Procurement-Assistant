@@ -3,15 +3,14 @@
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
-  Award,
   BadgeCheck,
   CheckCircle2,
-  Clock,
+  ExternalLink,
+  FileSearch,
+  Globe2,
   Mail,
   MapPin,
-  ShieldAlert,
-  ShieldCheck,
-  Star,
+  Phone,
   XCircle
 } from "lucide-react";
 import { AgentLoadingModal } from "@/components/agent-loading-modal";
@@ -19,12 +18,11 @@ import { AppShell } from "@/components/app-shell";
 import { Stepper } from "@/components/stepper";
 import type { LaptopSupplier } from "@/data/suppliers";
 import {
-  analyzeRequirement,
   generateRFQEmail,
-  scoreSuppliers,
-  type SupplierRecommendation
+  scoreSuppliers
 } from "@/lib/agent/procurementAgent";
 import { defaultRequirement } from "@/lib/scoring";
+import type { PublicSupplier, SupplierDiscoveryResult } from "@/lib/supplier-discovery";
 import { useDemoState } from "@/lib/use-demo-state";
 import type { LaptopRequirement } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
@@ -45,45 +43,95 @@ export default function RecommendationsPage() {
   const [preparingRfq, setPreparingRfq] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [suppliers, setSuppliers] = useState<PublicSupplier[]>([]);
+  const [sourceInfo, setSourceInfo] = useState<SupplierDiscoveryResult["sourceInfo"] | null>(null);
 
   const resolvedRequirement = useMemo(
     () => getStoredRequirement(requirement),
     [requirement]
   );
-  const analysis = useMemo(
-    () => analyzeRequirement(resolvedRequirement),
-    [resolvedRequirement]
-  );
-  const supplierRecommendations = useMemo(
-    () => scoreSuppliers(resolvedRequirement),
+  const requirementSummaryItems = useMemo(
+    () => getRequirementSummaryItems(resolvedRequirement),
     [resolvedRequirement]
   );
   const selectedRecommendations = useMemo(
-    () =>
-      supplierRecommendations.filter((recommendation) =>
-        selectedIds.includes(recommendation.supplier.id)
-      ),
-    [selectedIds, supplierRecommendations]
+    () => suppliers.filter((supplier) => selectedIds.includes(supplier.id)),
+    [selectedIds, suppliers]
   );
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setMatching(false);
-    }, 2000);
+    let cancelled = false;
 
-    return () => window.clearTimeout(timer);
-  }, []);
+    async function runSupplierDiscovery() {
+      setMatching(true);
+      setValidationMessage("");
+
+      try {
+        const response = await fetch("/api/supplier-discovery", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ requirement: resolvedRequirement })
+        });
+
+        if (!response.ok) {
+          throw new Error("Supplier discovery failed.");
+        }
+
+        const discovery = (await response.json()) as SupplierDiscoveryResult;
+
+        if (!cancelled) {
+          setSuppliers(discovery.suppliers);
+          setSourceInfo(discovery.sourceInfo);
+        }
+      } catch {
+        if (!cancelled) {
+          const fallbackSuppliers = scoreSuppliers(resolvedRequirement)
+            .slice(0, 10)
+            .map((recommendation) =>
+              toFallbackPublicSupplier(recommendation.supplier)
+            );
+
+          setSuppliers(fallbackSuppliers);
+          setSourceInfo({
+            sourceType: "Offline demo supplier database",
+            sourcesChecked: fallbackSuppliers.length,
+            sourcesUsed: fallbackSuppliers.length,
+            query: "Offline fallback supplier scoring",
+            note:
+              "Live supplier discovery was unavailable, so this demo used the existing offline supplier database.",
+            sources: fallbackSuppliers.map((supplier) => ({
+              name: supplier.name,
+              url: supplier.sourceUrl,
+              available: true
+            }))
+          });
+        }
+      } finally {
+        window.setTimeout(() => {
+          if (!cancelled) {
+            setMatching(false);
+          }
+        }, 900);
+      }
+    }
+
+    runSupplierDiscovery();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedRequirement]);
 
   useEffect(() => {
     if (hydrated) {
-      const validSupplierIds = new Set(
-        supplierRecommendations.map((recommendation) => recommendation.supplier.id)
-      );
+      const validSupplierIds = new Set(suppliers.map((supplier) => supplier.id));
       setSelectedIds(
         selectedSupplierIds.filter((supplierId) => validSupplierIds.has(supplierId))
       );
     }
-  }, [hydrated, selectedSupplierIds, supplierRecommendations]);
+  }, [hydrated, selectedSupplierIds, suppliers]);
 
   function toggleSupplier(id: string) {
     setValidationMessage("");
@@ -100,9 +148,7 @@ export default function RecommendationsPage() {
       return;
     }
 
-    const selectedSuppliers = selectedRecommendations.map(
-      (recommendation) => recommendation.supplier
-    );
+    const selectedSuppliers = selectedRecommendations;
     setPreparingRfq(true);
 
     window.setTimeout(() => {
@@ -141,9 +187,6 @@ export default function RecommendationsPage() {
             <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-mahindra-ink md:text-4xl">
               Supplier Recommendations
             </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600 md:text-base">
-              Ranked by capability, delivery, compliance, support, and experience.
-            </p>
           </div>
           <button className="primary-button" onClick={handleGenerateRFQ} type="button">
             <Mail size={18} />
@@ -167,31 +210,20 @@ export default function RecommendationsPage() {
                   <h2 className="mt-1 text-2xl font-bold text-mahindra-ink">
                     Requirement Summary
                   </h2>
-                  <p className="mt-2 max-w-4xl text-sm leading-6 text-zinc-600">
-                    {analysis.summary}
-                  </p>
                 </div>
                 <div className="rounded-md border border-red-100 bg-red-50/70 px-4 py-3 text-sm font-semibold text-mahindra-red">
-                  {supplierRecommendations.length} suppliers scanned
+                  {suppliers.length} suppliers ranked
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <SummaryCard label="Item required" value={analysis.shortSummary.itemRequired} />
-                <SummaryCard label="Quantity" value={`${analysis.shortSummary.quantity} units`} />
-                <SummaryCard label="Location" value={analysis.shortSummary.location} />
-                <SummaryCard label="Timeline" value={analysis.shortSummary.timeline} />
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                <SummaryList
-                  title="Key technical requirements"
-                  items={analysis.shortSummary.keyTechnicalRequirements}
-                />
-                <SummaryList
-                  title="Key supplier selection criteria"
-                  items={analysis.shortSummary.keySupplierSelectionCriteria}
-                />
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {requirementSummaryItems.map((item) => (
+                  <SummaryCard
+                    key={item.label}
+                    label={item.label}
+                    value={item.value}
+                  />
+                ))}
               </div>
             </section>
 
@@ -204,22 +236,24 @@ export default function RecommendationsPage() {
                   </h2>
                 </div>
                 <div className="hidden rounded-md border border-white/80 bg-white/[0.82] px-3 py-2 text-xs font-bold text-zinc-600 shadow-sm backdrop-blur md:block">
-                  Top 3 are highlighted
+                  Top 10 public-source matches
                 </div>
               </div>
 
               <div className="grid gap-4 xl:grid-cols-2">
-                {supplierRecommendations.map((recommendation, index) => (
+                {suppliers.map((supplier, index) => (
                   <SupplierCard
                     index={index}
-                    key={recommendation.supplier.id}
-                    recommendation={recommendation}
-                    selected={selectedIds.includes(recommendation.supplier.id)}
-                    onToggle={() => toggleSupplier(recommendation.supplier.id)}
+                    key={supplier.id}
+                    supplier={supplier}
+                    selected={selectedIds.includes(supplier.id)}
+                    onToggle={() => toggleSupplier(supplier.id)}
                   />
                 ))}
               </div>
             </section>
+
+            {sourceInfo && <SourceInfoCard sourceInfo={sourceInfo} />}
 
             <section className="premium-card p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -240,16 +274,16 @@ export default function RecommendationsPage() {
 
               {selectedRecommendations.length > 0 ? (
                 <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {selectedRecommendations.map((recommendation) => (
+                  {selectedRecommendations.map((supplier) => (
                     <div
                       className="rounded-md border border-red-100 bg-red-50/60 p-4"
-                      key={recommendation.supplier.id}
+                      key={supplier.id}
                     >
                       <p className="font-bold text-mahindra-ink">
-                        {recommendation.supplier.name}
+                        {supplier.name}
                       </p>
                       <p className="mt-1 text-sm text-zinc-600">
-                        {recommendation.matchPercentage}% match - {recommendation.supplier.location}
+                        {supplier.publicEmail} - {supplier.location}
                       </p>
                     </div>
                   ))}
@@ -268,94 +302,67 @@ export default function RecommendationsPage() {
 }
 
 function SupplierCard({
-  recommendation,
+  supplier,
   index,
   selected,
   onToggle
 }: {
-  recommendation: SupplierRecommendation;
+  supplier: PublicSupplier;
   index: number;
   selected: boolean;
   onToggle: () => void;
 }) {
-  const supplier = recommendation.supplier;
-  const topRecommended = index < 3;
-
   return (
     <article
       className={`group rounded-lg border bg-white/[0.9] p-5 shadow-[0_16px_48px_rgba(36,39,44,0.085)] backdrop-blur-2xl transition duration-200 hover:shadow-[0_20px_56px_rgba(36,39,44,0.11)] sm:p-6 ${
         selected
           ? "border-mahindra-red ring-2 ring-red-100"
-          : topRecommended
+          : index < 3
             ? "border-red-100"
             : "border-white/80"
       }`}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            {topRecommended && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-mahindra-red px-2.5 py-1 text-xs font-bold text-white">
-                <Award size={14} />
-                Top {index + 1}
-              </span>
-            )}
-            <RiskBadge riskLevel={supplier.riskLevel} />
             <span className="rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-bold text-zinc-700">
-              {recommendation.fitCategory} fit
+              Rank {index + 1}
+            </span>
+            <span className="rounded-md border border-red-100 bg-red-50 px-2.5 py-1 text-xs font-bold text-mahindra-red">
+              {supplier.sourceType}
             </span>
           </div>
           <h3 className="mt-3 text-xl font-bold text-mahindra-ink">{supplier.name}</h3>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-zinc-600">
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin size={15} />
-              {supplier.location}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Mail size={15} />
-              {supplier.email}
-            </span>
-          </div>
-        </div>
-
-        <div className="min-w-28 rounded-md bg-mahindra-ink px-4 py-3 text-center text-white shadow-[0_10px_28px_rgba(36,39,44,0.16)]">
-          <p className="text-3xl font-bold leading-none">{recommendation.matchPercentage}%</p>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-white/70">
-            Match
+          <p className="mt-2 flex items-start gap-1.5 text-sm leading-6 text-zinc-600">
+            <MapPin className="mt-1 shrink-0" size={15} />
+            <span>{supplier.address || supplier.location}</span>
           </p>
         </div>
-      </div>
 
-      <div className="mt-5">
-        <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-mahindra-red to-red-400 transition-all duration-700"
-            style={{ width: `${recommendation.matchPercentage}%` }}
-          />
+        <div className="rounded-md border border-zinc-200 bg-mahindra-mist px-3 py-2 text-sm font-bold text-mahindra-ink">
+          Score {supplier.relevanceScore}/100
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-        <Metric icon={Star} label="Rating" value={supplier.rating.toFixed(1)} />
-        <Metric icon={Clock} label="Delivery" value={`${supplier.averageDeliveryDays} days`} />
-        <Metric icon={ShieldCheck} label="Capacity" value={`${supplier.maxOrderCapacity} units`} />
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <InfoLine icon={Mail} label="Email ID" value={supplier.publicEmail} />
+        <InfoLine icon={Phone} label="Contact number" value={supplier.publicContactNumber} />
+        <InfoLine icon={Globe2} label="Website/source" value={supplier.websiteUrl} href={supplier.sourceUrl} />
+        <InfoLine icon={BadgeCheck} label="Credibility" value={supplier.credibilitySignal} />
+        <InfoLine label="Brands handled" value={supplier.brandsSupported.join(", ")} />
+        <InfoLine label="Budget/rating" value={supplier.budgetRange !== "Not publicly disclosed" ? supplier.budgetRange : `Rating signal: ${supplier.rating.toFixed(1)}/5`} />
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <BadgeGroup title="Brands supported" items={supplier.brandsSupported} />
-        <BadgeGroup title="Certifications" items={supplier.certifications} />
-        <BadgeGroup title="Warranty / support" items={[...supplier.warrantySupport, ...supplier.supportCapability]} />
-        <BadgeGroup title="Security capabilities" items={supplier.securityCapabilities} />
-      </div>
-
-      <div className="mt-5 rounded-md border border-red-100 bg-red-50/60 p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-mahindra-red">
-          <BadgeCheck size={16} />
-          Recommendation reason
-        </div>
-        <p className="text-sm leading-6 text-mahindra-ink">
-          {recommendation.recommendationReason}
-        </p>
+      <div className="mt-5 rounded-md border border-zinc-200 bg-white/[0.68] p-4">
+        <p className="field-label">Primary benchmarking points</p>
+        <ul className="mt-3 space-y-2 text-sm font-semibold leading-6 text-mahindra-ink">
+          {supplier.benchmarkingPoints.slice(0, 4).map((point) => (
+            <li className="flex gap-2" key={point}>
+              <CheckCircle2 className="mt-1 shrink-0 text-mahindra-red" size={15} />
+              <span>{point}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <button
@@ -370,84 +377,95 @@ function SupplierCard({
   );
 }
 
+function InfoLine({
+  icon: Icon,
+  label,
+  value,
+  href
+}: {
+  icon?: React.ElementType;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  return (
+    <div className="rounded-md bg-mahindra-mist p-3">
+      <p className="field-label flex items-center gap-1.5">
+        {Icon && <Icon size={14} />}
+        {label}
+      </p>
+      {href ? (
+        <a
+          className="mt-1 inline-flex items-center gap-1 break-all text-sm font-bold leading-6 text-mahindra-red hover:underline"
+          href={href}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {value}
+          <ExternalLink size={14} />
+        </a>
+      ) : (
+        <p className="mt-1 break-words text-sm font-bold leading-6 text-mahindra-ink">{value}</p>
+      )}
+    </div>
+  );
+}
+
+function SourceInfoCard({
+  sourceInfo
+}: {
+  sourceInfo: SupplierDiscoveryResult["sourceInfo"];
+}) {
+  return (
+    <section className="premium-card p-5 sm:p-6">
+      <div className="flex items-start gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-red-50 text-mahindra-red">
+          <FileSearch size={20} />
+        </div>
+        <div>
+          <p className="field-label">Source information</p>
+          <h2 className="mt-1 text-xl font-bold text-mahindra-ink">
+            {sourceInfo.sourceType}
+          </h2>
+          <p className="mt-2 text-sm font-semibold leading-6 text-zinc-600">
+            {sourceInfo.note}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <SummaryCard label="Sources checked" value={`${sourceInfo.sourcesChecked}`} />
+        <SummaryCard label="Sources used" value={`${sourceInfo.sourcesUsed}`} />
+        <SummaryCard label="Search query" value={sourceInfo.query} />
+      </div>
+
+      <div className="mt-5 rounded-md border border-zinc-200 bg-white/[0.68] p-4">
+        <p className="field-label">Sources used</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {sourceInfo.sources.slice(0, 10).map((source) => (
+            <a
+              className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs font-bold text-mahindra-ink transition hover:border-mahindra-red hover:text-mahindra-red"
+              href={source.url}
+              key={source.url}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {source.name}
+              <ExternalLink size={13} />
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-white/80 bg-white/[0.72] p-4 shadow-sm backdrop-blur">
       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-500">{label}</p>
-      <p className="mt-2 text-lg font-bold text-mahindra-ink">{value}</p>
+      <p className="mt-2 text-base font-bold leading-6 text-mahindra-ink">{value}</p>
     </div>
-  );
-}
-
-function SummaryList({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="rounded-md border border-white/80 bg-white/[0.68] p-4">
-      <p className="field-label">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm leading-6 text-zinc-600">
-        {items.map((item) => (
-          <li className="flex gap-2" key={item}>
-            <CheckCircle2 className="mt-1 shrink-0 text-mahindra-red" size={15} />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function Metric({
-  icon: Icon,
-  label,
-  value
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-md bg-mahindra-mist p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-500">
-        <Icon size={15} />
-        {label}
-      </div>
-      <p className="mt-1 font-bold text-mahindra-ink">{value}</p>
-    </div>
-  );
-}
-
-function BadgeGroup({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div>
-      <p className="field-label">{title}</p>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {items.map((item) => (
-          <span
-            className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700"
-            key={item}
-          >
-            <BadgeCheck size={13} />
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function RiskBadge({ riskLevel }: { riskLevel: LaptopSupplier["riskLevel"] }) {
-  const styles = {
-    Low: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    Medium: "bg-amber-50 text-amber-700 border-amber-100",
-    High: "bg-red-50 text-mahindra-red border-red-100"
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-bold ${styles[riskLevel]}`}
-    >
-      <ShieldAlert size={14} />
-      {riskLevel} risk
-    </span>
   );
 }
 
@@ -470,4 +488,72 @@ function getStoredRequirement(requirement: LaptopRequirement): LaptopRequirement
     window.localStorage.removeItem("mm-laptop-requirement");
     return requirement ?? defaultRequirement;
   }
+}
+
+function getRequirementSummaryItems(requirement: LaptopRequirement) {
+  return [
+    { label: "Request title", value: requirement.requestTitle },
+    { label: "Business unit / department", value: requirement.department },
+    { label: "Delivery location", value: requirement.deliveryLocation },
+    { label: "Required delivery date", value: formatRequirementDate(requirement.requiredDeliveryDate) },
+    { label: "Quantity", value: `${requirement.quantity} units` },
+    { label: "Budget range / estimated budget", value: `INR ${formatAmount(requirement.quantity * requirement.budgetPerLaptop)}` },
+    { label: "Laptop category", value: requirement.laptopType },
+    { label: "Processor class", value: requirement.processor },
+    { label: "RAM", value: `${requirement.ramGb} GB` },
+    { label: "Storage", value: formatStorage(requirement.storageGb) },
+    { label: "Operating system", value: requirement.operatingSystem },
+    { label: "Preferred brand", value: requirement.brandPreference }
+  ];
+}
+
+function formatRequirementDate(value: string) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).format(new Date(value));
+}
+
+function formatAmount(value: number) {
+  if (!Number.isFinite(value)) {
+    return "Not specified";
+  }
+
+  return new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatStorage(storageGb: number) {
+  if (!Number.isFinite(Number(storageGb))) {
+    return "Not specified";
+  }
+
+  return storageGb >= 1024 ? `${storageGb / 1024} TB SSD` : `${storageGb} GB SSD`;
+}
+
+function toFallbackPublicSupplier(supplier: LaptopSupplier): PublicSupplier {
+  return {
+    ...supplier,
+    address: supplier.location,
+    publicEmail: supplier.email,
+    publicContactNumber: "Demo supplier contact only",
+    websiteUrl: "https://example.com",
+    sourceUrl: "https://example.com",
+    sourceType: "Offline demo supplier database",
+    enterpriseRelevance: supplier.supplierDescription,
+    benchmarkingPoints: [
+      `${supplier.location} supplier with ${supplier.serviceCoverage.join(", ")} coverage`,
+      `Handles ${supplier.brandsSupported.join(", ")} laptop procurement`,
+      `${supplier.rating.toFixed(1)}/5 demo supplier rating`
+    ],
+    credibilitySignal: "Fictional demo supplier record",
+    budgetRange: "Not publicly disclosed",
+    relevanceScore: Math.round(supplier.rating * 20)
+  };
 }

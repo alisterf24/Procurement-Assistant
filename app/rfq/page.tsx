@@ -4,12 +4,10 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
-  FileText,
   Mail,
   MapPin,
   Send,
-  ShieldAlert,
-  Users
+  ShieldAlert
 } from "lucide-react";
 import { AgentLoadingModal } from "@/components/agent-loading-modal";
 import { AppShell } from "@/components/app-shell";
@@ -49,7 +47,9 @@ export default function RFQPage() {
   const [success, setSuccess] = useState(false);
   const [sentLog, setSentLog] = useState<SentEmailLog | null>(null);
 
-  const recipientEmails = selectedSuppliers.map((supplier) => supplier.email);
+  const recipientEmails = selectedSuppliers
+    .map((supplier) => supplier.email)
+    .filter(isEmailAddress);
   const recipientDisplay =
     recipientEmails.length > 0 ? recipientEmails.join(", ") : "No selected supplier emails found";
 
@@ -115,7 +115,7 @@ export default function RFQPage() {
               <CheckCircle2 size={30} />
             </div>
             <h2 className="mt-5 text-xl font-bold text-mahindra-ink">
-              RFQ send recorded
+              RFQ sent successfully.
             </h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600">
               Sent summary saved locally. No real email was sent.
@@ -161,7 +161,7 @@ export default function RFQPage() {
               type="button"
             >
               <Send size={18} />
-              Record RFQ Send
+              Send RFQ
             </button>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function RFQPage() {
                 type="button"
               >
                 <Send size={18} />
-                Record RFQ Send
+                Send RFQ
               </button>
             </div>
 
@@ -220,14 +220,6 @@ export default function RFQPage() {
                 onChange={(event) => setBody(event.target.value)}
               />
             </label>
-
-            <div className="mt-4 rounded-md border border-red-100 bg-red-50/70 p-4">
-              <p className="flex items-center gap-2 text-sm font-bold text-mahindra-red">
-                <FileText size={16} />
-                Draft note
-              </p>
-              <p className="mt-2 text-sm leading-6 text-mahindra-ink">{aiNote}</p>
-            </div>
           </section>
 
           <aside className="space-y-4">
@@ -260,21 +252,6 @@ export default function RFQPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            <div className="metric-tile">
-              <p className="field-label">Send readiness</p>
-              <div className="mt-3 grid gap-3">
-                <ReadinessMetric icon={Users} label="Suppliers" value={`${selectedSuppliers.length}`} />
-                <ReadinessMetric icon={Mail} label="Recipient emails" value={`${recipientEmails.length}`} />
-              </div>
-            </div>
-
-            <div className="metric-tile">
-              <p className="field-label">Send mode</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-600">
-                Simulated only. A sent summary is saved locally.
-              </p>
             </div>
 
             {sentLog && (
@@ -340,26 +317,6 @@ function normalizeDraft(draft: RFQDraft | { subject: string; body: string; aiNot
   };
 }
 
-function ReadinessMetric({
-  icon: Icon,
-  label,
-  value
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-md bg-mahindra-mist p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-500">
-        <Icon size={15} />
-        {label}
-      </div>
-      <p className="mt-1 font-bold text-mahindra-ink">{value}</p>
-    </div>
-  );
-}
-
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -374,4 +331,8 @@ function formatTimestamp(value: string) {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(new Date(value));
+}
+
+function isEmailAddress(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }

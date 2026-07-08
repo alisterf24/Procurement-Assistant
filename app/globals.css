@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  --background: #f5f6f8;
+  --background: #f4f6f9;
   --foreground: #24272c;
 }
 
@@ -20,6 +20,10 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 button,
@@ -44,23 +48,23 @@ a:focus-visible {
   }
 
   .field-input {
-    @apply mt-2 w-full rounded-md border border-mahindra-line/80 bg-white/[0.94] px-3.5 py-2.5 text-sm leading-6 text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.035)] transition duration-200 placeholder:text-zinc-400 hover:border-zinc-300 hover:bg-white focus:border-mahindra-red focus:bg-white focus:shadow-[0_0_0_4px_rgba(215,25,32,0.08),0_12px_28px_rgba(36,39,44,0.05)];
+    @apply mt-2 w-full rounded-md border border-mahindra-line/80 bg-white/[0.95] px-3.5 py-2.5 text-sm leading-6 text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.035)] transition duration-300 placeholder:text-zinc-400 hover:border-zinc-300 hover:bg-white focus:border-mahindra-red focus:bg-white focus:shadow-[0_0_0_4px_rgba(215,25,32,0.08),0_12px_28px_rgba(36,39,44,0.05)];
   }
 
   .primary-button {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-mahindra-red px-4 py-2.5 text-sm font-bold leading-5 text-white shadow-[0_10px_22px_rgba(215,25,32,0.2)] transition duration-200 hover:bg-mahindra-deep hover:shadow-[0_14px_28px_rgba(215,25,32,0.24)] active:translate-y-px disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-mahindra-red px-4 py-2.5 text-sm font-bold leading-5 text-white shadow-[0_12px_26px_rgba(215,25,32,0.20)] transition duration-300 hover:-translate-y-0.5 hover:bg-mahindra-deep hover:shadow-[0_18px_34px_rgba(215,25,32,0.24)] active:translate-y-px disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none disabled:hover:translate-y-0;
   }
 
   .secondary-button {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-white/80 bg-white/[0.9] px-4 py-2.5 text-sm font-bold leading-5 text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.055)] backdrop-blur transition duration-200 hover:border-mahindra-red hover:bg-white hover:text-mahindra-red hover:shadow-[0_12px_28px_rgba(36,39,44,0.08)] active:translate-y-px disabled:cursor-not-allowed disabled:text-zinc-400;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-white/80 bg-white/[0.9] px-4 py-2.5 text-sm font-bold leading-5 text-mahindra-ink shadow-[0_8px_22px_rgba(36,39,44,0.055)] backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:border-mahindra-red hover:bg-white hover:text-mahindra-red hover:shadow-[0_14px_30px_rgba(36,39,44,0.09)] active:translate-y-px disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:translate-y-0;
   }
 
   .metric-tile {
-    @apply rounded-lg border border-white/75 bg-white/[0.9] p-4 shadow-[0_14px_36px_rgba(36,39,44,0.07)] backdrop-blur-2xl transition duration-200 hover:shadow-[0_18px_44px_rgba(36,39,44,0.095)];
+    @apply rounded-lg border border-white/75 bg-white/[0.9] p-4 shadow-[0_14px_36px_rgba(36,39,44,0.07)] backdrop-blur-2xl transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(36,39,44,0.10)];
   }
 
   .premium-card {
-    @apply rounded-lg border border-white/80 bg-white/[0.9] shadow-[0_16px_48px_rgba(36,39,44,0.085)] backdrop-blur-2xl;
+    @apply rounded-lg border border-white/80 bg-white/[0.90] shadow-[0_18px_54px_rgba(36,39,44,0.085)] backdrop-blur-2xl transition duration-300;
   }
 
   .agent-status-badge {
@@ -75,8 +79,8 @@ a:focus-visible {
     overflow: hidden;
     isolation: isolate;
     background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(246, 247, 249, 0.97) 43%, rgba(231, 235, 241, 0.92) 100%),
-      #f5f6f8;
+      linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(247, 249, 252, 0.98) 42%, rgba(229, 234, 242, 0.94) 100%),
+      #f4f6f9;
   }
 
   .branded-background::after {
@@ -99,17 +103,17 @@ a:focus-visible {
     z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle at 8% 12%, rgba(215, 25, 32, 0.12), transparent 28rem),
-      radial-gradient(circle at 92% 8%, rgba(215, 25, 32, 0.08), transparent 24rem),
-      radial-gradient(circle at 78% 92%, rgba(36, 39, 44, 0.1), transparent 26rem);
+      radial-gradient(circle at 8% 12%, rgba(215, 25, 32, 0.105), transparent 28rem),
+      radial-gradient(circle at 92% 8%, rgba(72, 88, 112, 0.10), transparent 24rem),
+      radial-gradient(circle at 78% 92%, rgba(36, 39, 44, 0.09), transparent 26rem);
     animation: premium-glow-drift 24s ease-in-out infinite alternate;
   }
 
   .branded-background--hero::before {
     background:
-      radial-gradient(circle at 7% 16%, rgba(215, 25, 32, 0.2), transparent 30rem),
-      radial-gradient(circle at 88% 18%, rgba(215, 25, 32, 0.14), transparent 28rem),
-      radial-gradient(circle at 76% 84%, rgba(36, 39, 44, 0.12), transparent 27rem);
+      radial-gradient(circle at 7% 16%, rgba(215, 25, 32, 0.18), transparent 30rem),
+      radial-gradient(circle at 88% 18%, rgba(74, 92, 118, 0.14), transparent 28rem),
+      radial-gradient(circle at 76% 84%, rgba(36, 39, 44, 0.11), transparent 27rem);
   }
 
   .brand-bg-layer {

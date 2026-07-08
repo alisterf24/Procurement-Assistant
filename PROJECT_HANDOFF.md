@@ -6,7 +6,7 @@ Procurement Assistant
 
 ## Purpose
 
-This is a demo-only procurement decision-support prototype for enterprise laptop sourcing. It helps a procurement manager create a hardware requirement, review fictional supplier recommendations, prepare an RFQ draft, record a simulated RFQ send, and compare received vendor quotations.
+This is a demo-only procurement decision-support prototype for enterprise laptop sourcing. It helps a procurement manager create a hardware requirement, review supplier recommendations from a curated public-source registry with offline fallback support, prepare an RFQ draft, record a simulated RFQ send, and compare received vendor quotations.
 
 This prototype does not use OpenAI API, does not use external AI APIs, does not require API keys, and does not send real emails.
 
@@ -30,10 +30,11 @@ There is no login requirement. The landing page provides two entry points:
 - React
 - Tailwind CSS
 - LocalStorage for demo state
-- Mock supplier database in TypeScript
+- Server-side supplier discovery API route with curated public-source registry fallback
+- Mock supplier database in TypeScript as a safe offline fallback
 - Deterministic rule-based procurement logic
 - Deterministic rule-based quotation comparison logic
-- No backend API routes
+- One local Next.js API route for supplier discovery
 - No real authentication
 - No real email service
 
@@ -44,12 +45,12 @@ Hardware Procurement flow:
 1. Landing page
 2. Simplified laptop procurement requirement form
 3. Simulated procurement analysis loading modal
-4. Supplier recommendation page
+4. Supplier recommendation page with top 10 public-source supplier cards
 5. Supplier selection for RFQ
 6. Simulated RFQ preparation loading modal
 7. Editable RFQ email page
-8. Simulated RFQ send recording
-9. Success popup
+8. Simulated Send RFQ action
+9. "RFQ sent successfully." popup
 10. Sent RFQ summary
 
 Procurement Advisory flow:
@@ -64,28 +65,35 @@ Procurement Advisory flow:
 
 ## Pages Implemented
 
-- `/` - minimal landing page with Hardware Procurement and Procurement Advisory actions
+- `/` - modern landing page with hero, capability highlights, and Hardware Procurement / Procurement Advisory action cards
 - `/requirements` - simplified laptop procurement requirement form with Basic Details and Laptop Requirement sections
-- `/recommendations` - supplier recommendation and selection page
-- `/rfq` - editable RFQ draft and simulated send page
+- `/recommendations` - supplier recommendation and selection page with top 10 public-source supplier cards and source information
+- `/rfq` - editable RFQ draft and simulated Send RFQ page
 - `/advisory` - quotation upload, deterministic extraction, comparison, and decision summary page
+- `/api/supplier-discovery` - server-side supplier discovery endpoint using public-source registry fallback
 
 ## Features Implemented
 
-- Minimal no-login landing page
+- Polished no-login landing page with enterprise hero, action cards, and capability highlights
+- Responsive sidebar navigation on inner pages with Home, Hardware Procurement, and Procurement Advisory
 - Simplified hardware procurement requirement form
 - Requirement intake shows only Basic Details and Laptop Requirement sections
 - Hidden internal defaults keep supplier matching compatible with removed supplier-filter fields
 - Load Sample Laptop Requirement button
 - Required field validation
+- Server-side supplier discovery endpoint
+- Curated India-focused public-source supplier registry
+- Public-source supplier cards with name, address/location, business email where publicly available, contact number where publicly available, source link, benchmarking points, brands handled, credibility/source signal, and budget/rating indicator
+- Source information card showing source mode, sources checked/used, public-data note, and source links
+- Safe fallback to existing fictional supplier database if discovery API fails
 - Mock supplier database with 10 fictional suppliers
 - Deterministic supplier scoring
-- Procurement-focused requirement summary
-- Supplier recommendation reasons
+- Concise procurement-head requirement summary on supplier page
 - Supplier selection validation
 - RFQ subject/body generation
 - Editable RFQ subject and body
-- Simulated RFQ send recording
+- RFQ To field populated from selected supplier email IDs
+- Simulated Send RFQ action and success popup
 - Sent RFQ log in localStorage
 - Multi-file TXT/PDF quotation upload
 - Validation requiring at least two quotations before comparison
@@ -133,9 +141,29 @@ The comparison balances price, product fit, delivery, warranty/support, commerci
 
 Supported advisory upload formats are TXT and text-readable PDF. PDF text is extracted locally in the browser from readable PDF content streams, including common compressed PDF streams. No files are sent to a backend or external document-processing service. Scanned/image-only PDFs are accepted without crashing and shown with a clarification warning.
 
+## Supplier Discovery and Fallback
+
+The current supplier recommendation flow first calls the server-side API route at `app/api/supplier-discovery/route.ts`.
+
+The route uses `lib/supplier-discovery.ts`, which:
+
+- accepts the submitted hardware requirement
+- builds a search-style query from laptop category, preferred brand, India, enterprise laptop supplier, reseller, authorized partner, and corporate laptop dealer terms
+- attempts server-side public source reachability checks where technically possible
+- ranks suppliers from a curated public-source registry when live search is unavailable
+- returns source metadata for display in the UI
+
+No paid search API, API key, OpenAI API, external AI service, LinkedIn scraping, private data scraping, login-protected scraping, or bot-protection bypass is used.
+
+The curated supplier registry is India-focused and contains public business details only. If information such as budget range, email, or phone is not publicly available in the curated source data, the UI uses "Not publicly disclosed".
+
+Supplier ranking balances brand match, enterprise/corporate relevance, India presence, authorized/OEM/distributor signals, public contact availability, service/location coverage, source credibility, information completeness, and laptop procurement relevance.
+
+If the API route fails, the page safely adapts the existing fictional supplier database from `data/suppliers.ts` so the demo remains usable.
+
 ## Mock Supplier Database
 
-The current mock supplier database is in `data/suppliers.ts`.
+The fallback mock supplier database is in `data/suppliers.ts`.
 
 It contains exactly 10 fictional laptop suppliers. Each supplier includes:
 
@@ -157,9 +185,9 @@ It contains exactly 10 fictional laptop suppliers. Each supplier includes:
 - price competitiveness
 - description
 
-All supplier emails use demo-safe fake domains such as `example.com`.
+All fallback supplier emails use demo-safe fake domains such as `example.com`.
 
-## Supplier Recommendation Logic
+## Legacy Supplier Recommendation Logic
 
 Supplier scoring is deterministic and based on a 100-point scoring model:
 
@@ -172,7 +200,9 @@ Supplier scoring is deterministic and based on a 100-point scoring model:
 - Warranty/support match: 5 points
 - Past enterprise experience: 5 points
 
-The recommendation page sorts suppliers from highest score to lowest score and displays the match percentage, fit category, risk badge, supplier details, and recommendation reason.
+This scoring remains available as the offline fallback path if supplier discovery fails.
+
+The current recommendation page normally displays top 10 supplier cards from the curated public-source registry. Each card is intentionally concise and shows supplier name, address/location, email, contact number, website/source link, up to 3-4 benchmarking points, brands handled, credibility/source indicator, budget/rating indicator, and a Select Supplier button.
 
 The current hardware intake no longer exposes supplier-filter fields such as warranty, support, security, certifications, supplier rating, supplier preference, past enterprise experience, or delivery timeline expectation. These values are supplied as conservative internal defaults during requirement normalization so the existing deterministic scoring and RFQ flow remain stable.
 
@@ -190,17 +220,19 @@ It generates:
 
 - specific RFQ subject
 - professional supplier-neutral email body
-- note explaining that the RFQ was prepared from the requirement and supplier capabilities
+- internal note explaining that the RFQ was prepared from the requirement and supplier capabilities
+
+The current RFQ page no longer displays the draft note section, Send readiness card, or Send mode card. The primary action is labeled `Send RFQ`.
 
 ## Simulated Email Sending
 
 No real emails are sent.
 
-When the user records the RFQ send:
+When the user clicks `Send RFQ`:
 
 - a loading modal is shown
 - a local sent log is created in localStorage
-- a success popup is displayed
+- a success popup displays `RFQ sent successfully.`
 - the sent summary is shown in the RFQ sidebar
 
 The sent log key is `mm-rfq-sent-log`.
@@ -228,12 +260,15 @@ The requirement form can be completed manually or populated using `Load Sample L
 
 The prototype uses a restrained enterprise decision-support style:
 
-- red, white, charcoal grey, and metallic grey palette
+- refined red, white, charcoal grey, soft slate, and metallic grey palette
 - subtle branded-style background without real company marks
-- restrained cards and borders
+- responsive sidebar navigation on inner pages
+- modern landing page with hero, action cards, and capability highlights
+- restrained cards, borders, glass-style panels, and soft shadows
 - clear hierarchy
 - short labels and minimal helper text
 - procurement-focused summaries
+- soft hover transitions, gentle card lift, smooth button feedback, and refined loading states
 - responsive layouts for desktop, tablet, and mobile
 
 ## Branding Approach
@@ -249,8 +284,8 @@ Demo-only behavior includes:
 - no-login local prototype access
 - deterministic procurement logic
 - deterministic TXT/PDF quotation extraction and comparison
-- mock suppliers
-- fictional supplier data
+- curated public-source supplier registry with offline fallback
+- fictional supplier data only for fallback/demo continuity
 - simulated RFQ email generation
 - simulated RFQ send recording
 - localStorage-only state
@@ -272,11 +307,12 @@ Demo-only behavior includes:
 
 - State is local to the browser using localStorage.
 - Supplier scoring is deterministic and simplified for demo purposes.
+- Supplier discovery does not perform unrestricted web scraping. The current implementation uses a server-side API route, public-source reachability checks where possible, and a curated public-source registry fallback.
 - The hardware requirement page is intentionally simplified to initial request fields only. Supplier filtering details are handled later through supplier and quotation comparison.
 - Quotation extraction is deterministic and demo-safe; TXT and text-readable PDF files are supported.
 - Scanned/image-only PDFs do not use OCR and are reported as needing a text-readable PDF or TXT quotation.
 - Missing quotation fields are surfaced as risks or clarification items.
-- Legacy helper files `lib/scoring.ts` and `lib/mock-suppliers.ts` remain from early prototype stages. The active supplier recommendation flow uses `data/suppliers.ts` and `lib/agent/procurementAgent.ts`.
+- Legacy helper files `lib/scoring.ts` and `lib/mock-suppliers.ts` remain from early prototype stages. The active supplier recommendation flow uses `app/api/supplier-discovery/route.ts`, `lib/supplier-discovery.ts`, and falls back to `data/suppliers.ts` / `lib/agent/procurementAgent.ts` when needed.
 - No real integrations exist.
 
 ## Future Enhancement Ideas
@@ -288,6 +324,7 @@ Demo-only behavior includes:
 - Add multi-location procurement support.
 - Add admin page for editing mock supplier data.
 - Add demo export for quotation comparison summaries.
+- Add a real, approved supplier search integration if a compliant search API and governance model are later selected.
 
 ## How To Run Locally
 
